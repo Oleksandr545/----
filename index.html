@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Minesweeper</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(10, 40px);
+            margin: 20px auto;
+            gap: 2px;
+        }
+        .cell {
+            width: 40px;
+            height: 40px;
+            background-color: lightgray;
+            border: 1px solid #999;
+            cursor: pointer;
+        }
+        .cell.revealed {
+            background-color: #ddd;
+            cursor: default;
+        }
+        .cell.bomb.revealed {
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Minesweeper</h1>
+<div class="grid" id="grid"></div>
+
+<script>
+    const gridElement = document.getElementById('grid');
+    const width = 10; // ширина поля
+    const height = 10; // высота поля
+    const mineCount = 10; // количество мин
+    let grid = [];
+    let minePositions = [];
+
+    function createBoard() {
+        // создаем сетку с ячейками
+        for (let i = 0; i < width * height; i++) {
+            const cell = document.createElement('div');
+            cell.setAttribute('data-id', i);
+            cell.classList.add('cell');
+            gridElement.appendChild(cell);
+            grid.push(cell);
+
+            // клики по ячейкам
+            cell.addEventListener('click', () => revealCell(cell));
+        }
+        placeMines();
+    }
+
+    function placeMines() {
+        // случайное размещение мин
+        while (minePositions.length < mineCount) {
+            let randomIndex = Math.floor(Math.random() * width * height);
+            if (!minePositions.includes(randomIndex)) {
+                minePositions.push(randomIndex);
+                grid[randomIndex].classList.add('bomb');
+            }
+        }
+    }
+
+    function revealCell(cell) {
+        const id = cell.getAttribute('data-id');
+        if (cell.classList.contains('revealed')) return; // избегаем повторных кликов
+
+        cell.classList.add('revealed');
+
+        if (minePositions.includes(parseInt(id))) {
+            // если это мина, игра окончена
+            cell.classList.add('bomb', 'revealed');
+            revealBombs();
+            alert("Game Over!");
+        }
+    }
+
+    function revealBombs() {
+        minePositions.forEach(index => {
+            const bombCell = grid[index];
+            bombCell.classList.add('revealed');
+        });
+    }
+
+    createBoard();
+</script>
+
+</body>
+</html>
